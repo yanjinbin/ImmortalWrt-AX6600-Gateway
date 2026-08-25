@@ -93,6 +93,9 @@ on:
         description: PPPoE 密码（NET_MODE=pppoe 时必填）
         default: ""
 
+permissions:
+  contents: write
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
