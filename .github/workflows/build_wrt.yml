@@ -61,6 +61,24 @@ on:
         required: false
         description: WiFi 名称
         default: "ASUS395"
+      WRT_WIFI_MODE:
+        required: false
+        description: WiFi 名称模式：合并或三频独立
+        type: choice
+        default: merged
+        options: [merged, separate]
+      WRT_SSID_5G1:
+        required: false
+        description: 独立模式 5G1 名称；留空为 WRT_SSID-5G1
+        default: ""
+      WRT_SSID_2G4:
+        required: false
+        description: 独立模式 2.4G 名称；留空为 WRT_SSID-2.4G
+        default: ""
+      WRT_SSID_5G2:
+        required: false
+        description: 独立模式 5G2 名称；留空为 WRT_SSID-5G2
+        default: ""
       WRT_WORD:
         required: false
         description: WiFi 密码
@@ -182,6 +200,10 @@ jobs:
           LAN_IP: ${{ inputs.LAN_IP }}
           WRT_PW: ${{ inputs.WRT_PW }}
           WRT_SSID: ${{ inputs.WRT_SSID }}
+          WRT_WIFI_MODE: ${{ inputs.WRT_WIFI_MODE }}
+          WRT_SSID_5G1: ${{ inputs.WRT_SSID_5G1 }}
+          WRT_SSID_2G4: ${{ inputs.WRT_SSID_2G4 }}
+          WRT_SSID_5G2: ${{ inputs.WRT_SSID_5G2 }}
           WRT_WORD: ${{ inputs.WRT_WORD }}
           PPPOE_ACCOUNT: ${{ inputs.PPPOE_ACCOUNT }}
           PPPOE_PASSWORD: ${{ inputs.PPPOE_PASSWORD }}

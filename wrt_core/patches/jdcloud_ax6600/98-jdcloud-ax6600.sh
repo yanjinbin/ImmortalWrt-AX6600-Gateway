@@ -15,6 +15,10 @@ lan_ip=${lan_ip:-192.168.2.1}
 root_pw=${root_pw:-666666}
 wifi_ssid=${wifi_ssid:-ASUS395}
 wifi_word=${wifi_word:-yjb123456}
+wifi_mode=${wifi_mode:-merged}
+wifi_ssid_5g1=${wifi_ssid_5g1:-${wifi_ssid}-5G1}
+wifi_ssid_2g4=${wifi_ssid_2g4:-${wifi_ssid}-2.4G}
+wifi_ssid_5g2=${wifi_ssid_5g2:-${wifi_ssid}-5G2}
 
 uci set network.lan.proto='static'
 uci set network.lan.ipaddr="$lan_ip"
@@ -33,8 +37,17 @@ fi
 
 for radio in 0 1 2; do
 	section="wireless.default_radio${radio}"
+	if [ "$wifi_mode" = separate ]; then
+		case "$radio" in
+			0) ssid_value=$wifi_ssid_5g1 ;;
+			1) ssid_value=$wifi_ssid_2g4 ;;
+			2) ssid_value=$wifi_ssid_5g2 ;;
+		esac
+	else
+		ssid_value=$wifi_ssid
+	fi
 	if uci -q get "$section.ssid" >/dev/null 2>&1; then
-		uci set "$section.ssid=$wifi_ssid"
+		uci set "$section.ssid=$ssid_value"
 		uci set "$section.encryption=psk2+ccmp"
 		uci set "$section.key=$wifi_word"
 	fi

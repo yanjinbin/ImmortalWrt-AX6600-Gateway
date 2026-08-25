@@ -35,8 +35,15 @@ jdcloud_validate_inputs() {
         return 1
     fi
 
+    local wifi_mode=${WRT_WIFI_MODE:-merged}
+    case "$wifi_mode" in
+        merged|separate) ;;
+        *) echo "错误: WRT_WIFI_MODE=$wifi_mode 不是 merged/separate" >&2; return 1 ;;
+    esac
+
     local value
-    for value in "${WRT_SSID:-ASUS395}" "${WRT_WORD:-yjb123456}" "${WRT_PW:-666666}" \
+    for value in "${WRT_SSID:-ASUS395}" "${WRT_SSID_5G1:-}" "${WRT_SSID_2G4:-}" \
+        "${WRT_SSID_5G2:-}" "${WRT_WORD:-yjb123456}" "${WRT_PW:-666666}" \
         "${PPPOE_ACCOUNT:-}" "${PPPOE_PASSWORD:-}"; do
         [[ "$value" != *$'\n'* && "$value" != *$'\r'* ]] || {
             echo '错误: 登录/WiFi/PPPoE 输入不能包含换行' >&2
@@ -48,13 +55,21 @@ jdcloud_validate_inputs() {
 jdcloud_write_settings() {
     local settings_path="$BUILD_DIR/package/base-files/files/etc/config/jdcloud-settings"
     local effective_lan_ip
+    local wifi_ssid=${WRT_SSID:-ASUS395}
+    local wifi_ssid_5g1=${WRT_SSID_5G1:-${wifi_ssid}-5G1}
+    local wifi_ssid_2g4=${WRT_SSID_2G4:-${wifi_ssid}-2.4G}
+    local wifi_ssid_5g2=${WRT_SSID_5G2:-${wifi_ssid}-5G2}
     effective_lan_ip=$(jdcloud_effective_lan_ip)
     mkdir -p "${settings_path%/*}"
     {
         printf 'net_mode=%s\n' "$(jdcloud_shell_quote "${NET_MODE:-dhcp}")"
         printf 'lan_ip=%s\n' "$(jdcloud_shell_quote "$effective_lan_ip")"
         printf 'root_pw=%s\n' "$(jdcloud_shell_quote "${WRT_PW:-666666}")"
-        printf 'wifi_ssid=%s\n' "$(jdcloud_shell_quote "${WRT_SSID:-ASUS395}")"
+        printf 'wifi_mode=%s\n' "$(jdcloud_shell_quote "${WRT_WIFI_MODE:-merged}")"
+        printf 'wifi_ssid=%s\n' "$(jdcloud_shell_quote "$wifi_ssid")"
+        printf 'wifi_ssid_5g1=%s\n' "$(jdcloud_shell_quote "$wifi_ssid_5g1")"
+        printf 'wifi_ssid_2g4=%s\n' "$(jdcloud_shell_quote "$wifi_ssid_2g4")"
+        printf 'wifi_ssid_5g2=%s\n' "$(jdcloud_shell_quote "$wifi_ssid_5g2")"
         printf 'wifi_word=%s\n' "$(jdcloud_shell_quote "${WRT_WORD:-yjb123456}")"
         printf 'pppoe_account=%s\n' "$(jdcloud_shell_quote "${PPPOE_ACCOUNT:-}")"
         printf 'pppoe_password=%s\n' "$(jdcloud_shell_quote "${PPPOE_PASSWORD:-}")"

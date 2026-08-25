@@ -62,6 +62,24 @@ on:
         required: false
         description: WiFi 名称
         default: "ASUS395"
+      WRT_WIFI_MODE:
+        required: false
+        description: WiFi 名称模式：合并或三频独立
+        type: choice
+        default: merged
+        options: [merged, separate]
+      WRT_SSID_5G1:
+        required: false
+        description: 独立模式 5G1 名称；留空为 WRT_SSID-5G1
+        default: ""
+      WRT_SSID_2G4:
+        required: false
+        description: 独立模式 2.4G 名称；留空为 WRT_SSID-2.4G
+        default: ""
+      WRT_SSID_5G2:
+        required: false
+        description: 独立模式 5G2 名称；留空为 WRT_SSID-5G2
+        default: ""
       WRT_WORD:
         required: false
         description: WiFi 密码
@@ -185,6 +203,10 @@ jobs:
           LAN_IP: ${{ inputs.LAN_IP }}
           WRT_PW: ${{ inputs.WRT_PW }}
           WRT_SSID: ${{ inputs.WRT_SSID }}
+          WRT_WIFI_MODE: ${{ inputs.WRT_WIFI_MODE }}
+          WRT_SSID_5G1: ${{ inputs.WRT_SSID_5G1 }}
+          WRT_SSID_2G4: ${{ inputs.WRT_SSID_2G4 }}
+          WRT_SSID_5G2: ${{ inputs.WRT_SSID_5G2 }}
           WRT_WORD: ${{ inputs.WRT_WORD }}
           PPPOE_ACCOUNT: ${{ inputs.PPPOE_ACCOUNT }}
           PPPOE_PASSWORD: ${{ inputs.PPPOE_PASSWORD }}
@@ -276,6 +298,10 @@ jobs:
           INPUT_MIHOMO_PLATFORM: ${{ inputs.MIHOMO_PLATFORM }}
           INPUT_WRT_PW: ${{ inputs.WRT_PW }}
           INPUT_WRT_SSID: ${{ inputs.WRT_SSID }}
+          INPUT_WRT_WIFI_MODE: ${{ inputs.WRT_WIFI_MODE }}
+          INPUT_WRT_SSID_5G1: ${{ inputs.WRT_SSID_5G1 }}
+          INPUT_WRT_SSID_2G4: ${{ inputs.WRT_SSID_2G4 }}
+          INPUT_WRT_SSID_5G2: ${{ inputs.WRT_SSID_5G2 }}
           INPUT_WRT_WORD: ${{ inputs.WRT_WORD }}
         run: |
           lan_ip="$INPUT_LAN_IP"
@@ -287,7 +313,14 @@ jobs:
           echo "Kernel: ${{ env.KVER }}" >> release_body.txt
           echo "网络模式：$INPUT_NET_MODE；LAN地址：$lan_ip/24" >> release_body.txt
           echo "管理：root / $INPUT_WRT_PW" >> release_body.txt
-          echo "WiFi：$INPUT_WRT_SSID / $INPUT_WRT_WORD" >> release_body.txt
+          if [ "$INPUT_WRT_WIFI_MODE" = separate ]; then
+            ssid_5g1=${INPUT_WRT_SSID_5G1:-${INPUT_WRT_SSID}-5G1}
+            ssid_2g4=${INPUT_WRT_SSID_2G4:-${INPUT_WRT_SSID}-2.4G}
+            ssid_5g2=${INPUT_WRT_SSID_5G2:-${INPUT_WRT_SSID}-5G2}
+            echo "WiFi：独立；5G1=$ssid_5g1，2.4G=$ssid_2g4，5G2=$ssid_5g2 / $INPUT_WRT_WORD" >> release_body.txt
+          else
+            echo "WiFi：合并（5G1/2.4G/5G2）=$INPUT_WRT_SSID / $INPUT_WRT_WORD" >> release_body.txt
+          fi
           echo "mihomo：v$INPUT_MIHOMO_VERSION / $INPUT_MIHOMO_PLATFORM" >> release_body.txt
           echo "WAN 入站：ACCEPT；SSH/ttyd 全接口" >> release_body.txt
           echo "KMOD归档: ${KMOD_ARCHIVE}" >> release_body.txt

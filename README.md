@@ -145,7 +145,7 @@ AX6600 的 Nikki 使用 `yanjinbin/OpenWrt-nikki`，主题使用 `yanjinbin/uniw
 `jdcloud_ipq60xx_immwrt` 与 `jdcloud_ipq60xx_libwrt` 使用雅典娜 AX6600 定制流程：
 
 - 网络模式：`dhcp` 时 WAN 自动获取、LAN `192.168.2.1/24`；`router`/`pppoe` 时 LAN `192.168.1.1/24`。
-- 默认管理：`root / 666666`；WiFi：`ASUS395 / yjb123456`。GitHub Actions 可覆盖这些输入。
+- 默认管理：`root / 666666`；WiFi 默认合并为 `ASUS395 / yjb123456`，GitHub Actions 或手动构建可通过 `WRT_WIFI_MODE=separate` 改为三频独立；独立模式默认名称为 `ASUS395-5G1`、`ASUS395-2.4G`、`ASUS395-5G2`，也可用 `WRT_SSID_5G1`、`WRT_SSID_2G4`、`WRT_SSID_5G2` 覆盖。
 - WAN 入站长期为 `ACCEPT`，SSH/ttyd 不限制接口，便于从上级网络访问设备。
 - 内置 `nikki`、`luci-app-nikki`、UniWRT/Footstrap 主题；mihomo 使用 MetaCubeX 预编译 `v1.19.30`（arm64 默认）。
 - Nikki 首次启动预装 `GeoSite.dat`、`GeoIP.dat`、`ASN.mmdb`、`geoip.metadb`，并提供小写兼容软链接；`cache.db` 是运行时状态库，不写入固件。
