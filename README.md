@@ -20,8 +20,8 @@ sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_e
 ## 3. 获取源码
 
 ```bash
-git clone https://github.com/ZqinKing/wrt_release.git
-cd wrt_release
+git clone https://github.com/yanjinbin/ImmortalWrt-AX6600-Gateway.git
+cd ImmortalWrt-AX6600-Gateway
 ```
 
 ## 4. 编译用法
@@ -125,7 +125,7 @@ GitHub Actions 的手动构建也提供 `add_fragments` 与 `remove_fragments` �
 https://github.com/kenzok8/small-package.git
 ```
 
-相关增删和同步逻辑位于 `wrt_core/update.sh` 编排的 `wrt_core/modules/` 静态阶段。配置片段只选择 Kconfig，不负责 clone 仓库、修改 feeds 或安装 feeds。
+AX6600 的 Nikki 使用 `yanjinbin/OpenWrt-nikki`，主题使用 `yanjinbin/uniwrt-luci` 与 `yanjinbin/luci-theme-footstrap`；mihomo 核心由 MetaCubeX Releases 提供预编译二进制。相关增删和同步逻辑位于 `wrt_core/update.sh` 编排的 `wrt_core/modules/` 静态阶段。
 
 ## 8. 项目结构说明
 
@@ -140,10 +140,14 @@ https://github.com/kenzok8/small-package.git
 - `wrt_core/modules/`：模块化脚本，包括仓库准备、网络重试、feeds/custom_feed、源码修正、LuCI 修正、服务修正、验证、Docker、CUPS 等静态职责模块。
 - `wrt_core/patches/`：补丁、默认设置、Wi-Fi 初始化、NSS 诊断、PBR 规则和其他构建时注入文件。
 
-## 9. OAF（应用过滤）功能使用说明
+## 9. AX6600 定制
 
-使用 OAF（应用过滤）功能前，需先完成以下操作：
+`jdcloud_ipq60xx_immwrt` 与 `jdcloud_ipq60xx_libwrt` 使用雅典娜 AX6600 定制流程：
 
-1. 打开系统设置 → 启动项 → 定位到「appfilter」
-2. 将「appfilter」当前状态从已禁用更改为已启用
-3. 完成配置后，点击启动按钮激活服务
+- 网络模式：`dhcp` 时 WAN 自动获取、LAN `192.168.2.1/24`；`router`/`pppoe` 时 LAN `192.168.1.1/24`。
+- 默认管理：`root / 666666`；WiFi：`ASUS395 / yjb123456`。GitHub Actions 可覆盖这些输入。
+- WAN 入站长期为 `ACCEPT`，SSH/ttyd 不限制接口，便于从上级网络访问设备。
+- 内置 `nikki`、`luci-app-nikki`、UniWRT/Footstrap 主题；mihomo 使用 MetaCubeX 预编译 `v1.19.30`（arm64 默认）。
+- Nikki 首次启动预装 `GeoSite.dat`、`GeoIP.dat`、`ASN.mmdb`、`geoip.metadb`，并提供小写兼容软链接；`cache.db` 是运行时状态库，不写入固件。
+
+以下插件不会进入最终配置：PassWall、AdGuard Home、应用过滤、MosDNS、Lucky、CUPS 打印服务器、SmartDNS、策略路由、网络唤醒、网络共享、UPnP/PCP、VLMCSd KMS、NAS 及其他 VPN 客户端。最终 `make defconfig` 会对此 denylist 做检查。

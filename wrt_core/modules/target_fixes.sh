@@ -7,7 +7,9 @@ fix_default_set() {
         find "$BUILD_DIR/feeds/luci/collections/" -type f -name "Makefile" -exec sed -i "s/luci-theme-bootstrap/luci-theme-$THEME_SET/g" {} \;
     fi
 
-    install -Dm544 "$BASE_PATH/patches/990_set_argon_primary" "$BUILD_DIR/package/base-files/files/etc/uci-defaults/990_set_argon_primary"
+    if ! declare -F is_jdcloud_ax6600_build >/dev/null 2>&1 || ! is_jdcloud_ax6600_build; then
+        install -Dm544 "$BASE_PATH/patches/990_set_argon_primary" "$BUILD_DIR/package/base-files/files/etc/uci-defaults/990_set_argon_primary"
+    fi
     install -Dm544 "$BASE_PATH/patches/991_custom_settings" "$BUILD_DIR/package/base-files/files/etc/uci-defaults/991_custom_settings"
     install -Dm544 "$BASE_PATH/patches/992_set-wifi-uci.sh" "$BUILD_DIR/package/base-files/files/etc/uci-defaults/992_set-wifi-uci.sh"
 
@@ -225,9 +227,7 @@ add_backup_info_to_sysupgrade() {
 
     if [ -f "$conf_path" ]; then
         cat >"$conf_path" <<'EOF'
-/etc/AdGuardHome.yaml
-/etc/easytier
-/etc/lucky/
+/etc/nikki/
 EOF
     fi
 }

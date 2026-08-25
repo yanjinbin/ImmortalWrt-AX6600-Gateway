@@ -239,6 +239,7 @@ add_quickfile() {
 
 
 update_argon() {
+    is_jdcloud_ax6600_build && return 0
     local repo_url="https://github.com/ZqinKing/luci-theme-argon.git"
     local dst_theme_path="$BUILD_DIR/feeds/luci/themes/luci-theme-argon"
     local tmp_dir

@@ -14,6 +14,8 @@ fi
 
 BASE_PATH=$(cd "$WRT_CORE_PATH" && pwd)
 
+source "$BASE_PATH/modules/verify.sh"
+
 REPO_ROOT=$(cd "$BASE_PATH/.." && pwd)
 
 Dev=$1
@@ -420,6 +422,9 @@ COMMIT_HASH=${COMMIT_HASH:-none}
 
 resolve_config_fragments
 
+# 将设备名传给 update 阶段，AX6600 定制仅对 IPQ60xx 两个构建入口生效。
+export WRT_DEVICE_CONFIG="$Dev"
+
 if [[ $Build_Mod == "config_preview" ]]; then
     print_config_preview
     exit 0
@@ -438,6 +443,7 @@ remove_uhttpd_dependency
 
 cd "$BASE_PATH/../$BUILD_DIR"
 make defconfig
+assert_excluded_packages_disabled "$BASE_PATH/../$BUILD_DIR/.config"
 
 if grep -qE "^CONFIG_TARGET_x86_64=y" "$CONFIG_FILE"; then
     DISTFEEDS_PATH="$BASE_PATH/../$BUILD_DIR/package/emortal/default-settings/files/99-distfeeds.conf"

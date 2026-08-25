@@ -35,6 +35,44 @@ on:
         required: false
         description: Remove default config fragments, comma separated
         default: ""
+      MIHOMO_VERSION:
+        required: false
+        description: mihomo 版本（MetaCubeX 预编译）
+        default: "1.19.30"
+      MIHOMO_PLATFORM:
+        required: false
+        description: mihomo 平台
+        default: "arm64"
+      NET_MODE:
+        required: false
+        description: AX6600 网络模式：dhcp/router/pppoe
+        type: choice
+        default: dhcp
+        options: [dhcp, router, pppoe]
+      LAN_IP:
+        required: false
+        description: LAN 地址；留空按模式使用 192.168.2.1 或 192.168.1.1
+        default: ""
+      WRT_PW:
+        required: false
+        description: root 密码
+        default: "666666"
+      WRT_SSID:
+        required: false
+        description: WiFi 名称
+        default: "ASUS395"
+      WRT_WORD:
+        required: false
+        description: WiFi 密码
+        default: "yjb123456"
+      PPPOE_ACCOUNT:
+        required: false
+        description: PPPoE 账号（NET_MODE=pppoe 时必填）
+        default: ""
+      PPPOE_PASSWORD:
+        required: false
+        description: PPPoE 密码（NET_MODE=pppoe 时必填）
+        default: ""
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -138,6 +176,15 @@ jobs:
         env:
           ADD_CONFIG_FRAGMENTS: ${{ inputs.add_fragments }}
           REMOVE_CONFIG_FRAGMENTS: ${{ inputs.remove_fragments }}
+          MIHOMO_VERSION: ${{ inputs.MIHOMO_VERSION }}
+          MIHOMO_PLATFORM: ${{ inputs.MIHOMO_PLATFORM }}
+          NET_MODE: ${{ inputs.NET_MODE }}
+          LAN_IP: ${{ inputs.LAN_IP }}
+          WRT_PW: ${{ inputs.WRT_PW }}
+          WRT_SSID: ${{ inputs.WRT_SSID }}
+          WRT_WORD: ${{ inputs.WRT_WORD }}
+          PPPOE_ACCOUNT: ${{ inputs.PPPOE_ACCOUNT }}
+          PPPOE_PASSWORD: ${{ inputs.PPPOE_PASSWORD }}
         run: ./build.sh ${{ inputs.model }}
 
       - name: Delete Old Cache

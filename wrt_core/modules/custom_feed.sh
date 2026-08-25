@@ -156,21 +156,14 @@ install_custom_feed() {
     local custom_feed_name
 
     local base_custom_feed_packages=(
-        xray-core xray-plugin dns2tcp dns2socks haproxy hysteria \
-        naiveproxy shadowsocks-rust sing-box v2ray-core v2ray-geodata geoview v2ray-plugin \
-        tuic-client chinadns-ng ipt2socks tcping trojan-plus simple-obfs shadowsocksr-libev \
-        v2dat adguardhome luci-app-adguardhome ddns-go \
+        ddns-go \
         luci-app-ddns-go taskd luci-lib-xterm luci-lib-taskd luci-app-store quickstart \
         luci-app-quickstart luci-app-istorex luci-app-cloudflarespeedtest netdata luci-app-netdata \
-        lucky luci-app-lucky luci-app-openclash luci-app-homeproxy luci-app-amlogic \
-        oaf open-app-filter luci-app-oaf easytier luci-app-easytier \
-        msd_lite luci-app-msd_lite cups luci-app-cupsd
+        luci-app-amlogic
     )
     local required_feed_dirs=(
-        cups tcping v2ray-geodata luci-lib-taskd luci-app-openclash
-        luci-app-quickstart luci-app-store luci-app-homeproxy luci-app-mosdns
-        luci-app-passwall nikki luci-app-nikki mihomo-meta
-        open-app-filter luci-app-oaf lucky luci-app-lucky luci-app-easytier
+        luci-lib-taskd luci-app-quickstart luci-app-store
+        nikki luci-app-nikki
         luci-app-emmc-health
     )
     local custom_feed_sources=()
@@ -192,9 +185,7 @@ install_custom_feed() {
     # 统一从外部仓库同步指定包，避免分散维护 feeds.conf。
     custom_feed_sources=(
         "kenzok8/small-package|https://github.com/kenzok8/small-package.git||${base_custom_feed_packages[*]}"
-        "sbwml/luci-app-mosdns|https://github.com/sbwml/luci-app-mosdns.git|v5|mosdns luci-app-mosdns"
-        "Openwrt-Passwall/openwrt-passwall|https://github.com/Openwrt-Passwall/openwrt-passwall.git|main|luci-app-passwall"
-        "nikkinikki-org/OpenWrt-nikki|https://github.com/nikkinikki-org/OpenWrt-nikki.git|main|nikki luci-app-nikki mihomo-meta"
+        "yanjinbin/OpenWrt-nikki|https://github.com/yanjinbin/OpenWrt-nikki.git|main|nikki luci-app-nikki"
     )
 
     feeds_path=$(get_feeds_path)

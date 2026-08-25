@@ -8,6 +8,12 @@ remove_unwanted_packages() {
         "luci-app-vssr" "luci-app-daed" "luci-app-dae" "luci-app-alist" "luci-app-homeproxy"
         "luci-app-haproxy-tcp" "luci-app-openclash" "luci-app-mihomo" "luci-app-appfilter"
         "luci-app-msd_lite" "luci-app-unblockneteasemusic" "luci-app-adguardhome"
+        "luci-app-oaf" "luci-app-mosdns" "luci-app-lucky" "luci-app-cupsd"
+        "luci-app-smartdns" "luci-app-pbr" "luci-app-wol" "luci-app-samba4"
+        "luci-app-ksmbd" "luci-app-nfs" "luci-app-upnp" "luci-app-vlmcsd"
+        "luci-app-diskman" "luci-app-quickfile" "luci-app-dockerman"
+        "luci-app-wireguard" "luci-app-openvpn" "luci-app-tailscale" "luci-app-zerotier"
+        "luci-app-easytier"
     )
     local packages_net=(
         "haproxy" "xray-core" "xray-plugin" "dns2socks" "alist" "hysteria"
@@ -15,9 +21,13 @@ remove_unwanted_packages() {
         "sing-box" "v2ray-core" "v2ray-geodata" "v2ray-plugin" "tuic-client"
         "chinadns-ng" "ipt2socks" "tcping" "trojan-plus" "simple-obfs" "shadowsocksr-libev"
         "dae" "daed" "mihomo" "geoview" "open-app-filter" "msd_lite"
+        "adguardhome" "mosdns" "lucky" "smartdns" "pbr" "wol" "etherwake"
+        "samba4" "samba4-server" "ksmbd" "nfs-utils" "miniupnpd" "vlmcsd"
+        "diskman" "quickfile" "dockerman" "wireguard-tools" "openvpn-openssl"
+        "tailscale" "zerotier" "easytier"
     )
     local packages_utils=(
-        "cups"
+        "cups" "p910nd" "kmod-usb-printer"
     )
     for pkg in "${luci_packages[@]}"; do
         if [[ -d ./feeds/luci/applications/$pkg ]]; then
@@ -40,6 +50,21 @@ remove_unwanted_packages() {
         fi
     done
 
+    # 一些排除项并不固定在单一 feed 子目录，统一从工作树清掉。
+    local package_tree_name
+    for package_tree_name in \
+        luci-app-passwall luci-app-adguardhome luci-app-appfilter luci-app-oaf open-app-filter \
+        luci-app-mosdns mosdns luci-app-lucky lucky luci-app-cupsd cups p910nd kmod-usb-printer \
+        luci-app-smartdns smartdns luci-app-pbr pbr luci-app-wol wol etherwake \
+        luci-app-samba4 samba4 samba4-server luci-app-ksmbd ksmbd luci-app-nfs nfs-utils \
+        luci-app-upnp miniupnpd luci-app-vlmcsd vlmcsd luci-app-diskman diskman \
+        luci-app-quickfile quickfile luci-app-dockerman dockerman luci-app-wireguard \
+        wireguard-tools kmod-wireguard luci-app-openvpn openvpn-openssl xl2tpd kmod-l2tp kmod-pppol2tp \
+        strongswan ocserv luci-app-strongswan luci-app-ocserv luci-app-tailscale \
+        tailscale luci-app-zerotier zerotier luci-app-easytier easytier; do
+        find ./feeds ./package -type d -name "$package_tree_name" -prune -exec rm -rf {} + 2>/dev/null || true
+    done
+
     if [[ -d ./package/istore ]]; then
         \rm -rf ./package/istore
     fi
@@ -47,6 +72,29 @@ remove_unwanted_packages() {
     if [ -d "$BUILD_DIR/target/linux/qualcommax/base-files/etc/uci-defaults" ]; then
         find "$BUILD_DIR/target/linux/qualcommax/base-files/etc/uci-defaults/" -type f -name "99*.sh" -exec rm -f {} +
     fi
+}
+
+remove_excluded_collection_dependencies() {
+    local collection_dir
+    local collection_makefile
+    local excluded_luci_package
+    local excluded_luci_packages=(
+        luci-app-passwall luci-app-passwall2 luci-app-adguardhome luci-app-appfilter
+        luci-app-oaf luci-app-mosdns luci-app-lucky luci-app-cupsd luci-app-smartdns
+        luci-app-pbr luci-app-wol luci-app-samba4 luci-app-ksmbd luci-app-nfs
+        luci-app-upnp luci-app-vlmcsd luci-app-diskman luci-app-quickfile
+        luci-app-dockerman luci-app-wireguard luci-app-openvpn luci-app-tailscale
+        luci-app-zerotier luci-app-easytier
+    )
+
+    for collection_dir in "$BUILD_DIR/feeds/luci/collections" "$BUILD_DIR/package/feeds/luci/collections"; do
+        [ -d "$collection_dir" ] || continue
+        while IFS= read -r collection_makefile; do
+            for excluded_luci_package in "${excluded_luci_packages[@]}"; do
+                sed -i -e "s/+${excluded_luci_package}[[:space:]]*/ /g" "$collection_makefile"
+            done
+        done < <(find "$collection_dir" -type f -name Makefile -print)
+    done
 }
 
 
