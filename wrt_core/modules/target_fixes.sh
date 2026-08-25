@@ -74,6 +74,11 @@ remove_something_nss_kmod() {
     done
 
     if [ -f "$ipq_mk_path" ]; then
+        if is_jdcloud_ax6600_build; then
+            # AX6600 不预装 VPN；上游 IPQ60xx target.mk 会默认带入这两个 NSS 驱动。
+            sed -i '/kmod-qca-nss-drv-l2tpv2/d' "$ipq_mk_path"
+            sed -i '/kmod-qca-nss-drv-pptp/d' "$ipq_mk_path"
+        fi
         sed -i '/kmod-qca-nss-drv-eogremgr/d' "$ipq_mk_path"
         sed -i '/kmod-qca-nss-drv-gre/d' "$ipq_mk_path"
         sed -i '/kmod-qca-nss-drv-map-t/d' "$ipq_mk_path"
