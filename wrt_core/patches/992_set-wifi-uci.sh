@@ -11,7 +11,9 @@ configure_wifi() {
 	local key=$6
 	local encryption=${7:-"psk2+ccmp"} # 新增 encryption 参数，如果为空则默认为 psk2+ccmp
 	local now_encryption=$(uci get wireless.default_radio${radio}.encryption)
-	if [ -n "$now_encryption" ] && [ "$now_encryption" != "none" ]; then
+	local now_disabled=$(uci -q get wireless.radio${radio}.disabled)
+	# 已有加密配置时也要修复被禁用的射频；否则 5G1 等 radio 会被提前 return。
+	if [ -n "$now_encryption" ] && [ "$now_encryption" != "none" ] && [ "$now_disabled" != "1" ]; then
 		return 0
 	fi
 	uci -q batch <<EOF

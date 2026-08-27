@@ -53,9 +53,9 @@ for radio in 0 1 2; do
 	fi
 done
 
-# 默认主题为 OpenWrt；UniWRT/Footstrap 保留为可切换主题。
+# 默认主题为 Footstrap；OpenWrt/UniWRT 保留为可切换主题。
 uci -q set luci.main='core'
-uci set luci.main.mediaurlbase='/luci-static/openwrt'
+uci set luci.main.mediaurlbase='/luci-static/footstrap'
 uci -q set luci.sauth='sauth'
 uci set luci.sauth.cookie_days='365'
 uci set luci.sauth.sessiontime='604800'

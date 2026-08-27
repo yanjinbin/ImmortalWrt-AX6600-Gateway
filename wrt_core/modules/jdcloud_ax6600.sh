@@ -158,10 +158,41 @@ jdcloud_update_nikki_geodata_urls() {
         "$nikki_conf"
 }
 
+jdcloud_install_luci_auth() {
+    local luci_base="$BUILD_DIR/feeds/luci/modules/luci-base"
+    local dispatcher="$luci_base/ucode/luci/dispatcher.uc"
+    local remember_patch="$BASE_PATH/patches/jdcloud_ax6600/luci-remember-login.ut"
+    local password_src="$BASE_PATH/patches/jdcloud_ax6600/password.js"
+    local password_dst="$BUILD_DIR/feeds/luci/modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js"
+
+    [ -f "$dispatcher" ] || return 0
+
+    # LuCI cookie lifetime is independently controlled by luci.sauth.cookie_days.
+    # Keep the source fallback aligned with the first-boot value (365 days).
+    if sed --version >/dev/null 2>&1; then
+        sed -i '/cookie_days/ s/?? [0-9][0-9]*/?? 365/g' "$dispatcher"
+    else
+        sed -i '' '/cookie_days/ s/?? [0-9][0-9]*/?? 365/g' "$dispatcher"
+    fi
+
+    # Append the same login-memory layer to the generic template and every theme
+    # template present in the selected LuCI source tree.
+    if [ -f "$remember_patch" ]; then
+        while IFS= read -r template; do
+            grep -q 'luci_remember_login_v1' "$template" && continue
+            printf '\n' >> "$template"
+            cat "$remember_patch" >> "$template"
+        done < <(find "$luci_base/ucode/luci/template" -type f -name 'sysauth.ut' -print)
+    fi
+
+    [ -f "$password_src" ] && install -Dm644 "$password_src" "$password_dst"
+}
+
 install_jdcloud_ax6600_customization() {
     is_jdcloud_ax6600_build || return 0
     jdcloud_validate_inputs
     jdcloud_install_extra_packages
+    jdcloud_install_luci_auth
     install -Dm755 "$BASE_PATH/patches/jdcloud_ax6600/98-jdcloud-ax6600.sh" \
         "$BUILD_DIR/package/base-files/files/etc/uci-defaults/98-jdcloud-ax6600.sh"
     jdcloud_write_settings
