@@ -94,6 +94,7 @@ on:
         default: ""
 
 permissions:
+  actions: write
   contents: write
 
 env:
